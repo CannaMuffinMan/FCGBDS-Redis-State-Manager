@@ -11,15 +11,23 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
+    "benchmark": "node scripts/benchmark/run-benchmark.mjs",
+    "benchmark:quick": "node scripts/benchmark/run-benchmark.mjs --url http://127.0.0.1:3001/api/auth/login --connections 20 --duration 15 --method POST",
     "docker:build": "docker build -t fcgbds-customer .",
     "docker:run": "docker run -p 3001:3001 fcgbds-customer",
     "dashboard": "npm run build && node dist/dashboard.js"
   },
   "keywords": [
     "bot-defense",
+    "bot-detection",
     "security",
     "middleware",
-    "api-protection"
+    "api-protection",
+    "rate-limiting",
+    "anti-cheat",
+    "cloudflare",
+    "redis",
+    "typescript"
   ],
   "author": "CannaMuffinMan / Forever Couch Gang",
   "license": "MIT",
@@ -31,6 +39,7 @@
     "@types/helmet": "^4.0.0",
     "@types/node": "^25.6.0",
     "@types/semver": "^7.7.1",
+    "autocannon": "^7.15.0",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3"
   },

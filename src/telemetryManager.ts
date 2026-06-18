@@ -22,7 +22,6 @@ export interface TelemetryConfig {
 
 export interface TelemetryData {
   timestamp: number;
-  licenseKey: string;
   version: string;
   uptime: number;
   botDefenseStats: any;

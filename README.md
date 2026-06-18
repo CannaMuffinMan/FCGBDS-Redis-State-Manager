@@ -6,6 +6,14 @@ This repo now includes the full customer runtime modules, middleware logic, and 
 License: MIT.
 Price: Free.
 
+## Start here
+
+1. System deep dive: `explanative`
+2. Contribution guide: `CONTRIBUTING.md`
+3. Promotion snippets: `PROMOTION_KIT.md`
+4. Benchmark docs: `scripts/benchmark/README.md`
+5. Read-only demo: `demo/read-only-dashboard.html`
+
 ## Voluntary request from the author
 
 If FCGBDS helps your platform, we ask for one of the following:
@@ -42,6 +50,31 @@ Primary signal families:
 6. Honeypot field detection.
 
 State can run in-memory or Redis-backed for horizontal scaling.
+
+```mermaid
+flowchart LR
+	U[Client Request] --> E[Edge/API Entry]
+	E --> M[FCGBDS Middleware]
+	M --> S1[IP Window Signal]
+	M --> S2[Device Fingerprint Signal]
+	M --> S3[Payload Repetition Signal]
+	M --> S4[Header and Browser Trust Signal]
+	M --> S5[Host Mismatch Signal]
+	M --> S6[Honeypot Signal]
+	S1 --> R[Risk Score Aggregation]
+	S2 --> R
+	S3 --> R
+	S4 --> R
+	S5 --> R
+	S6 --> R
+	R --> D{Decision Thresholds}
+	D -->|Allow| A[Route Handler]
+	D -->|Challenge| C[429 Challenge Response]
+	D -->|Block| B[403 Block Response]
+	M <-->|Shared Counters| X[(Redis)]
+	M -.fallback.-> L[(Local Memory)]
+	M --> T[Telemetry and Dashboard]
+```
 
 ## Quick start
 
@@ -118,6 +151,43 @@ Example placeholders:
 - `TARGET_API = "https://PLACEHOLDER_API_BASE_URL"`
 - `ALLOWED_TARGET_HOSTS = "PLACEHOLDER_API_HOST,PLACEHOLDER_SECONDARY_API_HOST"`
 
+## Platform integration examples
+
+1. Express example: `examples/express-integration.md`
+2. Fastify example: `examples/fastify-integration.md`
+3. Twitch webhook integration notes: `examples/platforms/twitch-webhook-integration.md`
+4. Kick integration notes: `examples/platforms/kick-webhook-integration.md`
+
+## Benchmarking and performance reporting
+
+Use the built-in benchmark scripts to produce numbers you can publish with reproducible test conditions.
+
+1. Quick run:
+
+```bash
+npm run benchmark:quick
+```
+
+2. Custom run:
+
+```bash
+npm run benchmark -- --url http://127.0.0.1:3001/api/auth/login --connections 50 --duration 30 --method POST
+```
+
+3. Full benchmark guide:
+
+- `scripts/benchmark/README.md`
+
+No static RPS or latency claims are hardcoded in this repo. Publish your own measured results with command + environment details.
+
+## Before/after showcase workflow
+
+For stream credibility and auditability, publish anonymized before/after metrics snapshots:
+
+1. Update `demo/sample-metrics.json` with your numbers.
+2. Open `demo/read-only-dashboard.html` to visualize the comparison.
+3. Share screenshot + benchmark command in your release notes.
+
 ## Placeholder safety
 
 This repo intentionally replaces internal infrastructure values with placeholders:
@@ -130,6 +200,18 @@ This repo intentionally replaces internal infrastructure values with placeholder
 6. `PLACEHOLDER_TERTIARY_API_HOST`
 
 Replace these with your own values before deployment.
+
+## Visibility checklist
+
+1. Add GitHub topics to this repo:
+	- bot-detection
+	- rate-limiting
+	- anti-cheat
+	- cloudflare
+	- redis
+	- typescript
+2. Use `PROMOTION_KIT.md` for stream overlays and social posts.
+3. Add a read-only metrics screenshot from `demo/read-only-dashboard.html` to your repo homepage or posts.
 
 ## Security and operations notes
 
@@ -145,10 +227,15 @@ Replace these with your own values before deployment.
 .
 ├─ src/
 ├─ cloudflare-workers/
+├─ examples/
+├─ scripts/benchmark/
+├─ demo/
 ├─ botDefenseRedis.ts
 ├─ .env.example
 ├─ docker-compose.yml
 ├─ Dockerfile
+├─ CONTRIBUTING.md
+├─ PROMOTION_KIT.md
 ├─ deploy.sh
 ├─ deploy.bat
 └─ explanative
