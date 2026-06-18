@@ -9,6 +9,7 @@ Price: Free.
 ## Start here
 
 1. System deep dive: `explanative`
+2. MSCB bridge deep dive: `MSCB_EXPLANATIVE.md`
 2. Contribution guide: `CONTRIBUTING.md`
 3. Promotion snippets: `PROMOTION_KIT.md`
 4. Benchmark docs: `scripts/benchmark/README.md`
@@ -157,6 +158,30 @@ Example placeholders:
 2. Fastify example: `examples/fastify-integration.md`
 3. Twitch webhook integration notes: `examples/platforms/twitch-webhook-integration.md`
 4. Kick integration notes: `examples/platforms/kick-webhook-integration.md`
+5. MSCB backend plug-in quickstart: `examples/mscb-backend-plug-in.md`
+
+## MSCB plug-in support (included)
+
+FCGBDS now includes plug-and-play MSCB bridge runtime support so teams can wire it into backend quickly and verify activity immediately.
+
+MSCB endpoints:
+
+1. `GET /api/mscb/status`
+2. `GET /api/mscb/events`
+3. `GET /api/mscb/events/stream`
+4. `POST /api/mscb/activate`
+5. `POST /api/mscb/deactivate`
+6. `POST /api/mscb/simulate`
+
+Instant verification flow:
+
+```bash
+curl http://localhost:3001/api/mscb/status
+curl -X POST http://localhost:3001/api/mscb/simulate -H "Content-Type: application/json" -d '{"platform":"twitch","channelId":"demo","userId":"u1","message":"hello"}'
+curl -N http://localhost:3001/api/mscb/events/stream
+```
+
+If events appear in status and stream output, your MSCB bridge code is active and running.
 
 ## Benchmarking and performance reporting
 

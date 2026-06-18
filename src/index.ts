@@ -15,6 +15,7 @@ import crypto from 'crypto';
 import { createBotDefenseMiddleware, BotDefenseMiddleware } from './botDefense';
 import { createUpdateManager, UpdateManager } from './updateManager';
 import { createTelemetryManager, TelemetryManager } from './telemetryManager';
+import { createMscbBridgeRouter, createMscbBridgeService } from './mscbBridge';
 
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
@@ -77,6 +78,11 @@ const config = {
   updateBackupEnabled: process.env.UPDATE_BACKUP_ENABLED === 'true',
   telemetryEnabled: process.env.TELEMETRY_ENABLED !== 'false',
   telemetrySendInterval: parseInt(process.env.TELEMETRY_SEND_INTERVAL || '300000'),
+  mscbEnabled: process.env.MSCB_ENABLED !== 'false',
+  mscbAdapters: process.env.MSCB_ADAPTERS || 'twitch,kick,youtube,discord',
+  mscbHeartbeatMs: parseInt(process.env.MSCB_HEARTBEAT_MS || '15000'),
+  mscbMaxRecentEvents: parseInt(process.env.MSCB_MAX_RECENT_EVENTS || '100'),
+  mscbTriggerKey: process.env.MSCB_TRIGGER_KEY || '',
   logLevel: process.env.LOG_LEVEL || 'info',
   installPath: path.join(__dirname, '..'),
 };
@@ -115,6 +121,19 @@ const telemetryManager = createTelemetryManager({
   instanceId: config.instanceId,
   sendInterval: config.telemetrySendInterval,
   enabled: config.telemetryEnabled,
+});
+
+const mscbBridge = createMscbBridgeService({
+  enabled: config.mscbEnabled,
+  platforms: config.mscbAdapters
+    .split(',')
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean)
+    .filter((entry): entry is 'twitch' | 'kick' | 'youtube' | 'discord' => (
+      entry === 'twitch' || entry === 'kick' || entry === 'youtube' || entry === 'discord'
+    )),
+  heartbeatMs: config.mscbHeartbeatMs,
+  maxRecentEvents: config.mscbMaxRecentEvents,
 });
 
 const app = express();
@@ -199,6 +218,8 @@ app.post('/api/fcgbds/telemetry/send', async (_req, res) => {
   }
 });
 
+app.use('/api/mscb', createMscbBridgeRouter(mscbBridge, config.mscbTriggerKey));
+
 app.use('/api/*path', (_req, res) => {
   res.json({ message: 'FCGBDS protection active', protected: true, timestamp: new Date().toISOString() });
 });
@@ -210,6 +231,7 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully');
+  void mscbBridge.stop();
   telemetryManager.stop();
   updateManager.stopAutoCheck();
   botDefense.destroy();
@@ -218,6 +240,7 @@ process.on('SIGTERM', () => {
 
 process.on('SIGINT', () => {
   console.log('SIGINT received, shutting down gracefully');
+  void mscbBridge.stop();
   telemetryManager.stop();
   updateManager.stopAutoCheck();
   botDefense.destroy();
@@ -227,6 +250,7 @@ process.on('SIGINT', () => {
 async function startServer() {
   try {
     console.log('FCGBDS Open Source Edition — no license key required.');
+    await mscbBridge.start();
     telemetryManager.start();
     updateManager.startAutoCheck();
     app.listen(config.port, config.host, () => {
@@ -234,6 +258,7 @@ async function startServer() {
       console.log('Bot defense:', config.botDefenseEnabled ? 'ENABLED' : 'DISABLED');
       console.log('Auto updates:', config.autoUpdateEnabled ? 'ENABLED' : 'DISABLED');
       console.log('Telemetry:', config.telemetryEnabled ? 'ENABLED' : 'DISABLED');
+      console.log('MSCB bridge:', config.mscbEnabled ? `ENABLED (${config.mscbAdapters})` : 'DISABLED');
       console.log('Blockchain anchor:', config.blockchainAnchorEnabled ? `ENABLED (${config.blockchainNetwork})` : 'DISABLED');
     });
   } catch (error) {
