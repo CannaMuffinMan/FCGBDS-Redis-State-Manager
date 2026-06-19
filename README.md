@@ -1,7 +1,5 @@
 # FCGBDS (Forever Couch Gang Bot Defense System)
 
-![FCGBDS Hero](assets/social/fcgbds-hero.jpg)
-
 ![FCGBDS Protected Poster](assets/social/fcgbds-protected-poster.jpg)
 
 ![FCGBDS 8-Layer Poster](assets/social/fcgbds-8-layer-poster.jpg)
