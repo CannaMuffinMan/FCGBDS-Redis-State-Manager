@@ -1,5 +1,11 @@
 # FCGBDS (Forever Couch Gang Bot Defense System)
 
+![FCGBDS Hero](assets/social/fcgbds-hero.jpg)
+
+![FCGBDS Protected Poster](assets/social/fcgbds-protected-poster.jpg)
+
+![FCGBDS 8-Layer Poster](assets/social/fcgbds-8-layer-poster.jpg)
+
 FCGBDS is a production bot defense stack you can run in your own system.
 This repo now includes the full customer runtime modules, middleware logic, and Cloudflare Worker test clients with placeholder-safe defaults.
 
@@ -14,6 +20,7 @@ Price: Free.
 3. Promotion snippets: `PROMOTION_KIT.md`
 4. Benchmark docs: `scripts/benchmark/README.md`
 5. Read-only demo: `demo/read-only-dashboard.html`
+6. Social/media assets: `assets/social/`
 
 ## Voluntary request from the author
 
